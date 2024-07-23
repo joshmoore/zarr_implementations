@@ -1,4 +1,5 @@
 IMPLEMENTATIONS=$(wildcard implementations/*)
+CURRENT_DIR = $(shell pwd)
 
 #
 # The default target:
@@ -39,7 +40,6 @@ endif ##########################################################
 data/reference_image.png:
 	python generate_reference_image.py
 
-
 define mk-impl-target
 # For each of the items in our "implementations" directory,
 # create targets which depend on the reference data and
@@ -47,11 +47,17 @@ define mk-impl-target
 
 .PHONY: read write $1 $1/ $1-read $1-write $1-destroy clean
 
+read-fast: $1-read-fast
 read: $1-read
 write: $1-write
 
 $1-write: data/reference_image.png
 	@if test -e $1/.skip; then echo "Skipping $1 -- $$(shell test -e $1/.skip && cat $1/.skip)"; else bash $1/driver.sh write; fi
+
+$1-read: write $1-read-fast
+
+$1-read-fast:
+	@if test -e $1/.skip; then echo "Skipping $1 -- $$(shell test -e $1/.skip && cat $1/.skip)"; else bash $1/driver.sh read $(CURRENT_DIR)/data/zarr_FSStore_flat.zr blosc/lz4; fi
 
 # Alias for read & write
 $1: $1-write $1-read

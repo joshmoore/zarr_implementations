@@ -8,7 +8,11 @@ ENVNAME=ZI_z5py
 IMPL=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT=$( dirname $IMPL)
 
-write(){
+zi_read(){
+    echo "skipping read"
+}
+
+zi_write(){
     create_or_activate
     python $IMPL/generate_z5py.py
 }

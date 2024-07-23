@@ -33,7 +33,7 @@ create_or_activate(){
     $COMMAND activate $ENVNAME
 }
 
-destroy(){
+zi_destroy(){
 
     if { $COMMAND env list | grep $ENVNAME; } >/dev/null 2>&1; then
         echo "Destroying $ENVNAME"

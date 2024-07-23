@@ -8,12 +8,16 @@ set -o pipefail
 
 argparse(){
     case "${1}" in
+        read)
+            shift;
+            echo "Reading data..."
+            zi_read "$@";;
         write)
             echo "Generating data..."
-            write;;
+            zi_write;;
         destroy)
             echo "Tearing down..."
-            destroy;;
+            zi_destroy;;
         *)
             echo "Unknown command: ${1}"
             exit 2;;

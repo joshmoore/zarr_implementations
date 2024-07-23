@@ -7,7 +7,19 @@ ENVNAME=ZI_jzarr
 IMPL=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT=$( dirname $IMPL)
 
-write(){
+zi_read(){
+    create_or_activate
+
+    cd "${IMPL}"
+
+    MVN_FLAGS=${MVN_FLAGS:-"--no-transfer-progress"}
+    mvn "${MVN_FLAGS}" clean package
+    #notrap_outerr
+
+    java -cp target/jzarr-1.0.0.jar zarr_implementations.jzarr.App -verify "$@"
+}
+
+zi_write(){
     create_or_activate
 
     cd "${IMPL}"
