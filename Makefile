@@ -51,7 +51,7 @@ read: $1-read
 write: $1-write
 
 $1-write: data/reference_image.png
-	bash $1/driver.sh write
+	@if test -e $1/.skip; then echo "Skipping $1 -- $$(shell test -e $1/.skip && cat $1/.skip)"; else bash $1/driver.sh write; fi
 
 # Alias for read & write
 $1: $1-write $1-read
