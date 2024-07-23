@@ -6,7 +6,7 @@ CHUNK_SHAPE = (100, 100, 1)
 SHARD_SHAPE = (1000, 1000, 3)
 STR_TO_CODEC = {
     "gzip": zarrita.codecs.gzip_codec(),
-    "blosc": zarrita.codecs.blosc_codec(cname="lz4"),
+    "blosc": zarrita.codecs.blosc_codec(cname="lz4", typesize=10),
 }
 
 
@@ -20,8 +20,8 @@ def generate_zr3_format(codecs=["gzip", "blosc", None], nested=True, sharded=Tru
         chunk_separator = "."
     if sharded:
         fname += "_sharded"
-    store = zarrita.FileSystemStore("file://./data")
-    g = zarrita.Group.create(store, fname)
+    store = zarrita.LocalStore("./data")
+    g = zarrita.Group.create(store / fname, exists_ok=True)
     for codec in codecs:
         if codec is None:
             name = "raw"
@@ -29,22 +29,31 @@ def generate_zr3_format(codecs=["gzip", "blosc", None], nested=True, sharded=Tru
             name = f"{codec}/{STR_TO_CODEC[codec].configuration.cname}"
         else:
             name = codec
-        codecs_impl = [STR_TO_CODEC[codec]] if codec is not None else []
+
+        codecs_impl = [zarrita.codecs.bytes_codec()]
+        if codec is not None:
+            codecs_impl.append(STR_TO_CODEC[codec])
+
         if sharded:
             codecs_impl = [
                 zarrita.codecs.sharding_codec(
                     chunk_shape=CHUNK_SHAPE, codecs=codecs_impl
-                )
+                ),
             ]
-        a = g.create_array(
-            name,
-            shape=im.shape,
-            chunk_shape=SHARD_SHAPE if sharded else CHUNK_SHAPE,
-            chunk_key_encoding=("default", chunk_separator),
-            dtype=im.dtype,
-            codecs=codecs_impl,
-        )
-        a[...] = im
+        try:
+            a = g.create_array(
+                name,
+                shape=im.shape,
+                chunk_shape=SHARD_SHAPE if sharded else CHUNK_SHAPE,
+                chunk_key_encoding=("default", chunk_separator),
+                dtype=im.dtype,
+                codecs=codecs_impl,
+                exists_ok=True,
+            )
+        except:
+            print(f"Failed on n:{nested}/s:{sharded}: {codecs_impl}")
+            raise
+        a[:, :, :]= im
 
 
 if __name__ == "__main__":

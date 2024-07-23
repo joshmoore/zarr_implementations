@@ -6,4 +6,4 @@ dependencies:
   - pip
   - pip:
       - scikit-image
-      - zarrita==0.1.0a1
+      - zarrita

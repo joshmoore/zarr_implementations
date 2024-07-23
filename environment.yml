@@ -3,7 +3,7 @@ channels:
   - defaults
 dependencies:
   - make
-  - python == 3.7.9
+  - python
   - scikit-image
   - pytest
   - pip
