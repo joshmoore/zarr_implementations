@@ -7,22 +7,37 @@
 set -e
 set -o pipefail
 
+## Setup based on mamba versus conda installation
+if command -v mamba &> /dev/null
+then
+    COMMAND=mamba
+else
+    COMMAND=conda
+fi
+
 create_or_activate(){
-    if { conda env list | grep $ENVNAME; } >/dev/null 2>&1; then
+
+    if { $COMMAND env list | grep $ENVNAME; } >/dev/null 2>&1; then
         echo "Using $ENVNAME"
     else
         echo "Creating $ENVNAME"
-        conda env create -n $ENVNAME -f $IMPL/environment.yml
+        $COMMAND env create -n $ENVNAME -f $IMPL/environment.yml
     fi
-    eval "$(conda shell.bash hook)"
+    export MAMBA_ROOT_PREFIX=$(mamba info --base -q)
+    export MAMBA_EXE=${MAMBA_ROOT_PREFIX}/bin/mamba
+    export CONDA_EXE=${MAMBA_ROOT_PREFIX}/bin/conda
+    . $MAMBA_ROOT_PREFIX/etc/profile.d/conda.sh
+    . $MAMBA_ROOT_PREFIX/etc/profile.d/mamba.sh
+
     echo "Activating $ENVNAME"
-    conda activate $ENVNAME
+    $COMMAND activate $ENVNAME
 }
 
 destroy(){
-    if { conda env list | grep $ENVNAME; } >/dev/null 2>&1; then
+
+    if { $COMMAND env list | grep $ENVNAME; } >/dev/null 2>&1; then
         echo "Destroying $ENVNAME"
-        conda env remove -y -n $ENVNAME
+        $COMMAND env remove -y -n $ENVNAME
     else
         echo "No known env: $ENVNAME"
     fi
