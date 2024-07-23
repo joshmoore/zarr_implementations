@@ -10,7 +10,7 @@ STR_TO_CODEC = {
 }
 
 
-def generate_zr3_format(codecs=["gzip", "blosc", None], nested=True, sharded=True):
+def generate_zr3_format(list_only:bool, codecs=["gzip", "blosc", None], nested=True, sharded=True):
     im = astronaut()
     fname = "zarrita"
     if nested:
@@ -20,8 +20,10 @@ def generate_zr3_format(codecs=["gzip", "blosc", None], nested=True, sharded=Tru
         chunk_separator = "."
     if sharded:
         fname += "_sharded"
-    store = zarrita.LocalStore("./data")
-    g = zarrita.Group.create(store / fname, exists_ok=True)
+
+    path = f"../../data/{fname}"
+    store = zarrita.LocalStore(path)
+    g = zarrita.Group.create(store, exists_ok=True)
     for codec in codecs:
         if codec is None:
             name = "raw"
@@ -40,7 +42,10 @@ def generate_zr3_format(codecs=["gzip", "blosc", None], nested=True, sharded=Tru
                     chunk_shape=CHUNK_SHAPE, codecs=codecs_impl
                 ),
             ]
-        try:
+
+        if list_only:
+            print(f"{path}\t{name}")
+        else:
             a = g.create_array(
                 name,
                 shape=im.shape,
@@ -50,13 +55,18 @@ def generate_zr3_format(codecs=["gzip", "blosc", None], nested=True, sharded=Tru
                 codecs=codecs_impl,
                 exists_ok=True,
             )
-        except:
-            print(f"Failed on n:{nested}/s:{sharded}: {codecs_impl}")
-            raise
-        a[:, :, :]= im
+            a[:, :, :]= im
 
 
 if __name__ == "__main__":
-    for nested in [False, True]:
-        for sharded in [False, True]:
-            generate_zr3_format(nested=nested, sharded=sharded)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-list", action="store_true")
+    parser.add_argument("-verify", action="store_true")
+    ns = parser.parse_args()
+    if ns.verify:
+        verify_format(ns.known_args)
+    else:
+        for nested in [False, True]:
+            for sharded in [False, True]:
+                generate_zr3_format(ns.list, nested=nested, sharded=sharded)

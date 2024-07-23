@@ -4,6 +4,7 @@
     "start": "node src/index.js"
   },
   "dependencies": {
+    "minimist": "1.2.8",
     "pngjs": "^6.0.0",
     "zarr": "^0.4.0"
   }

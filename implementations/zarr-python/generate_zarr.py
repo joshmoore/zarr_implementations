@@ -13,7 +13,7 @@ COMPRESSION_OPTIONS = {"blosc": {"cname": "lz4"}}
 
 
 # TODO use more compressors from numcodecs and more blosc filter_ids
-def generate_zarr_format(compressors=['gzip', 'blosc', 'zlib', None]):
+def generate_zarr_format(list_only:bool, compressors=['gzip', 'blosc', 'zlib', None]):
 
     for nested, StoreClass, store_kwargs in [
         (False, zarr.storage.DirectoryStore, {}),
@@ -24,7 +24,7 @@ def generate_zarr_format(compressors=['gzip', 'blosc', 'zlib', None]):
     ]:
 
         nested_str = '_nested' if nested else '_flat'
-        path = f'data/zarr_{StoreClass.__name__}{nested_str}.zr'
+        path = f'../../data/zarr_{StoreClass.__name__}{nested_str}.zr'
         store = StoreClass(path, **store_kwargs)
         im = astronaut()
 
@@ -38,21 +38,36 @@ def generate_zarr_format(compressors=['gzip', 'blosc', 'zlib', None]):
             else:
                 name = compressor
             compressor_impl = STR_TO_COMPRESSOR[compressor](**copts) if compressor is not None else None
+            if list_only:
+                print(f"{path}\t{name}")
+            else:
+                f.create_dataset(name, data=im, chunks=CHUNKS,
+                                 compressor=compressor_impl)
+
+
+def generate_n5_format(list_only:bool, compressors=['gzip', None]):
+    im = astronaut()
+
+    path = "../../data/zarr.n5"
+    f = zarr.open(path, mode='w')
+    for compressor in compressors:
+        name = compressor if compressor is not None else 'raw'
+        compressor_impl = STR_TO_COMPRESSOR[compressor]() if compressor is not None else None
+        if list_only:
+            print(f"{path}\t{name}")
+        else:
             f.create_dataset(name, data=im, chunks=CHUNKS,
                              compressor=compressor_impl)
 
 
-def generate_n5_format(compressors=['gzip', None]):
-    im = astronaut()
-
-    f = zarr.open('data/zarr.n5', mode='w')
-    for compressor in compressors:
-        name = compressor if compressor is not None else 'raw'
-        compressor_impl = STR_TO_COMPRESSOR[compressor]() if compressor is not None else None
-        f.create_dataset(name, data=im, chunks=CHUNKS,
-                         compressor=compressor_impl)
-
-
 if __name__ == '__main__':
-    generate_zarr_format()
-    generate_n5_format()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-list", action="store_true")
+    parser.add_argument("-verify", action="store_true")
+    ns = parser.parse_args()
+    if ns.verify:
+        verify_format(ns.known_args)
+    else:
+        generate_zarr_format(ns.list)
+        generate_n5_format(ns.list)

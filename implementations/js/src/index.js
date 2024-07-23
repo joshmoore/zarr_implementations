@@ -1,6 +1,7 @@
 import fs from "fs";
 import p from "path";
 import pkg from "pngjs";
+import minimist from "minimist";
 const { PNG } = pkg;
 
 import { openGroup, NestedArray, slice } from "zarr";
@@ -34,11 +35,11 @@ function getName(config) {
   return config.id;
 }
 
-async function generateZarrFormat(codecIds = ["gzip", "blosc", "zlib", null]) {
+async function generateZarrFormat(listOnly, codecIds = ["gzip", "blosc", "zlib", null]) {
   const path = p.join("..", "..", "data", "js.zr");
   const img = imread(p.join("..", "..", "data", "reference_image.png"));
 
-  if (fs.existsSync(path)) {
+  if (!listOnly && fs.existsSync(path)) {
     fs.rmdirSync(path, { recursive: true, force: true });
   }
 
@@ -46,12 +47,27 @@ async function generateZarrFormat(codecIds = ["gzip", "blosc", "zlib", null]) {
   for (const id of codecIds) {
     const config = id ? STR_TO_COMPRESSOR[id] : null;
     const name = getName(config);
-    grp.createDataset(name, undefined, img, {
-      compressor: config,
-      chunks: CHUNKS,
-      fillValue: 0,
-    });
+    if (listOnly) {
+        console.log(path + "\t" + name);
+    } else {
+      grp.createDataset(name, undefined, img, {
+        compressor: config,
+        chunks: CHUNKS,
+        fillValue: 0,
+      });
+    }
   }
 }
 
-generateZarrFormat();
+function main(){
+    var argv = minimist(process.argv.slice(2), {
+        boolean: ["list", "verify"],
+    });
+    if (argv.verify) {
+        verifyZarrFormat(verify);
+    } else {
+        generateZarrFormat(argv.list);
+    }
+}
+
+main();

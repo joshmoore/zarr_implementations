@@ -76,7 +76,7 @@ def ts_write(driver: str, path: str, metadata: dict, data: List):
 
 
 # TODO use more compressors from numcodecs and more blosc filter_ids
-def generate_zarr_format(compressors=['gzip', 'blosc', 'zlib', None]):
+def generate_zarr_format(list_only:bool, compressors=['gzip', 'blosc', 'zlib', None]):
     for compressor in compressors:
         copts = COMPRESSION_OPTIONS.get(compressor, {})
         if compressor is None:
@@ -87,17 +87,31 @@ def generate_zarr_format(compressors=['gzip', 'blosc', 'zlib', None]):
             name = compressor
         compressor_impl = STR_TO_COMPRESSOR[compressor](**copts) if compressor is not None else None
         # V2. TODO: add method for v3 everywhere
-        ts_write('zarr', f'data/tensorstore.zr/{name}', zr_metadata(), im)
+        if list_only:
+            print(f"data/tensorstore.zr\t{name}")
+        else:
+            ts_write('zarr', f'data/tensorstore.zr/{name}', zr_metadata(), im)
 
 
-def generate_n5_format(compressors=['gzip', None]):
+def generate_n5_format(list_only:bool, compressors=['gzip', None]):
     im = astronaut()
     for compressor in compressors:
         name = compressor if compressor is not None else 'raw'
         compressor_impl = STR_TO_COMPRESSOR[compressor]() if compressor is not None else None
-        ts_write('zarr', f'data/tensorstore.n5/{name}', n5_metadata(), im)
+        if list_only:
+            print(f"data/tensorstore.n5\t{name}")
+        else:
+            ts_write('zarr', f'data/tensorstore.n5/{name}', n5_metadata(), im)
 
 
 if __name__ == '__main__':
-    generate_zarr_format()
-    generate_n5_format()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-list", action="store_true")
+    parser.add_argument("-verify", action="store_true")
+    ns = parser.parse_args()
+    if ns.verify:
+        verify_format(ns.known_args)
+    else:
+        generate_zarr_format(ns.list)
+        generate_n5_format(ns.list)

@@ -58,13 +58,18 @@ public class App {
 
 
 	public static void main(String args[]) throws IOException {
+		boolean listOnly = (args.length == 1 && args[0].equals("-list"));
 		RandomAccessibleInterval<UnsignedByteType> data = getData();
 		final N5FSWriter container = new N5FSWriter(OUT_PATH);
 		for (final Compression compression : getCompressions()) {
 			final DatasetAttributes attrs = new DatasetAttributes(Intervals.dimensionsAsLongArray(data), BLOCK_SIZE, DataType.UINT8, compression);
 			final String dataset = compression.getType();
-			container.createDataset(dataset, attrs);
-			N5Utils.save(data, container, dataset, BLOCK_SIZE, compression);
+			if (listOnly) {
+				System.out.println(OUT_PATH + "\t" + dataset);
+			} else {
+				container.createDataset(dataset, attrs);
+				N5Utils.save(data, container, dataset, BLOCK_SIZE, compression);
+			}
 		}
 	}
 

@@ -8,13 +8,22 @@ ENVNAME=ZI_zarr-python
 IMPL=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT=$( dirname $IMPL)
 
-zi_read(){
-    echo "skipping read"
-}
-
 zi_write(){
+    cd "${IMPL}"
     create_or_activate
     python $IMPL/generate_zarr.py
+}
+
+zi_list(){
+    cd "${IMPL}"
+    create_or_activate
+    python $IMPL/generate_zarr.py -list
+}
+
+zi_read(){
+    cd "${IMPL}"
+    create_or_activate
+    python $IMPL/generate_zarr.py -verify "$@"
 }
 
 . $ROOT/.conda_driver.sh

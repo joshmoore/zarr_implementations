@@ -7,25 +7,13 @@ ENVNAME=ZI_jzarr
 IMPL=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT=$( dirname $IMPL)
 
-zi_read(){
-    create_or_activate
-
-    cd "${IMPL}"
-
-    MVN_FLAGS=${MVN_FLAGS:-"--no-transfer-progress"}
-    mvn "${MVN_FLAGS}" clean package
-    #notrap_outerr
-
-    java -cp target/jzarr-1.0.0.jar zarr_implementations.jzarr.App -verify "$@"
-}
-
 zi_write(){
     create_or_activate
 
     cd "${IMPL}"
 
-    MVN_FLAGS=${MVN_FLAGS:-"--no-transfer-progress"}
-    mvn "${MVN_FLAGS}" clean package
+    MVN_FLAGS=${MVN_FLAGS:-"-q --no-transfer-progress"}
+    mvn ${MVN_FLAGS} package
 
     java -cp target/jzarr-1.0.0.jar zarr_implementations.jzarr.App "$@" && {
         # Workaround for: https://github.com/bcdev/jzarr/issues/25
@@ -35,6 +23,31 @@ zi_write(){
         exit 2
     }
 }
+
+zi_list(){
+    create_or_activate
+
+    cd "${IMPL}"
+
+    MVN_FLAGS=${MVN_FLAGS:-"-q --no-transfer-progress"}
+    mvn ${MVN_FLAGS} package
+    #notrap_outerr
+
+    java -cp target/jzarr-1.0.0.jar zarr_implementations.jzarr.App -list
+}
+
+zi_read(){
+    create_or_activate
+
+    cd "${IMPL}"
+
+    MVN_FLAGS=${MVN_FLAGS:-"-q --no-transfer-progress"}
+    mvn ${MVN_FLAGS} package
+    #notrap_outerr
+
+    java -cp target/jzarr-1.0.0.jar zarr_implementations.jzarr.App -verify "$@"
+}
+
 
 . $ROOT/.conda_driver.sh
 . $ROOT/.bash_driver.sh

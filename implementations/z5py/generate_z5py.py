@@ -11,8 +11,8 @@ COMPRESSION_OPTIONS = {"blosc": {"codec": "lz4"}}
 # TODO support more compressors:
 # - more compressors in numcodecs
 # - more blosc codecs
-def generate_zarr_format(compressors=['gzip', 'blosc', 'zlib', 'raw']):
-    path = 'data/z5py.zr'
+def generate_zarr_format(list_only:bool, compressors=['gzip', 'blosc', 'zlib', 'raw']):
+    path = '../../data/z5py.zr'
     im = astronaut()
 
     f = z5py.File(path, mode='w')
@@ -23,19 +23,33 @@ def generate_zarr_format(compressors=['gzip', 'blosc', 'zlib', 'raw']):
             if compressor != "blosc"
             else "%s/%s" % (compressor, copts.get("codec"))
         )
-        f.create_dataset(name, data=im, compression=compressor, chunks=CHUNKS, **copts)
+        if list_only:
+            print(f"{path}\t{name}")
+        else:
+            f.create_dataset(name, data=im, compression=compressor, chunks=CHUNKS, **copts)
 
 
-def generate_n5_format(compressors=['gzip', 'raw']):
-    path = 'data/z5py.n5'
+def generate_n5_format(list_only:bool, compressors=['gzip', 'raw']):
+    path = '../../data/z5py.n5'
     im = astronaut()
 
     f = z5py.File(path, mode='w')
     for compressor in compressors:
         name = compressor
-        f.create_dataset(name, data=im, chunks=CHUNKS, compression=compressor)
+        if list_only:
+            print(f"{path}\t{name}")
+        else:
+            f.create_dataset(name, data=im, chunks=CHUNKS, compression=compressor)
 
 
 if __name__ == '__main__':
-    generate_zarr_format()
-    generate_n5_format()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-list", action="store_true")
+    parser.add_argument("-verify", action="store_true")
+    ns = parser.parse_args()
+    if ns.verify:
+        verify_format(ns.known_args)
+    else:
+        generate_zarr_format(ns.list)
+        generate_n5_format(ns.list)

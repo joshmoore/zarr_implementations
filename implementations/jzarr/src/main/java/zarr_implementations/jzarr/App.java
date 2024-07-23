@@ -80,11 +80,14 @@ public class App {
 
     public static void main(String args[]) throws Exception {
 
-        if (args.length != 0 && args.length != 3) {
+        if (args.length != 0 && args.length != 1 && args.length != 3) {
             System.out.println("usage: App");
+            System.out.println("usage: App -list");
             System.out.println("usage: App -verify fpath dsname");
             System.exit(2);  // EARLY EXIT
-        } else if (args.length == 3) {
+        }
+
+        if (args.length == 3) {
             String fpath = args[1];
             String dsname = args[2];
             ZarrArray verification = ZarrGroup.open(fpath).openArray(dsname);
@@ -105,6 +108,11 @@ public class App {
             return;  // EARLY EXIT
         }
 
+        boolean listOnly = false;
+        if (args.length == 1) {
+            listOnly = true;
+        }
+
         int[] data = getTestData();
 
         final ZarrGroup container = ZarrGroup.create(OUT_PATH);
@@ -121,9 +129,13 @@ public class App {
                 dsname = "blosc/lz4"; // FIXME: better workaround?
             }
             Path subdir = OUT_PATH.resolve(dsname);
-            ZarrArray zArray = ZarrArray.create(subdir, arrayParams);
-            // final ZarrArray zarr = ZarrArray.open(getRootPath().resolve(pathName));
-            zArray.write(data, SHAPE, new int[]{0, 0, 0});
+            if (listOnly) {
+                System.out.println(OUT_PATH + "\t" + dsname);
+            } else {
+                ZarrArray zArray = ZarrArray.create(subdir, arrayParams);
+                // final ZarrArray zarr = ZarrArray.open(getRootPath().resolve(pathName));
+                zArray.write(data, SHAPE, new int[]{0, 0, 0});
+            }
         }
     }
 }

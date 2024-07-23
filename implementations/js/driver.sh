@@ -4,10 +4,6 @@ ENVNAME=ZI_js
 IMPL=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT=$( dirname $IMPL)
 
-zi_read(){
-    echo "skipping read"
-}
-
 zi_write(){
     create_or_activate
 
@@ -15,6 +11,20 @@ zi_write(){
 
     npm install
     npm start
+}
+
+zi_list(){
+    create_or_activate
+
+    cd "${IMPL}"
+
+    npm install --silent
+    npm run --silent start -- --list "$@"
+}
+
+zi_read(){
+    cd "${IMPL}"
+    npm run start -- --verify "$@"
 }
 
 . $ROOT/.conda_driver.sh

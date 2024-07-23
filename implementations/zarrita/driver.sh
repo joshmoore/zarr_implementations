@@ -7,13 +7,22 @@ ENVNAME=ZI_zarrita
 IMPL=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT=$( dirname $IMPL)
 
-zi_read(){
-    echo "skipping read"
-}
-
 zi_write(){
+    cd "${IMPL}"
     create_or_activate
     python $IMPL/generate_zarrita.py
+}
+
+zi_list(){
+    cd "${IMPL}"
+    create_or_activate
+    python $IMPL/generate_zarrita.py -list
+}
+
+zi_read(){
+    cd "${IMPL}"
+    create_or_activate
+    python $IMPL/generate_zarrita.py -verify "$@"
 }
 
 . $ROOT/.conda_driver.sh

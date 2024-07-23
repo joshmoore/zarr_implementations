@@ -4,10 +4,6 @@ ENVNAME=ZI_xtensor_zarr
 IMPL=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT=$( dirname $IMPL)
 
-zi_read(){
-    echo "skipping read"
-}
-
 zi_write(){
     create_or_activate
 
@@ -22,6 +18,16 @@ zi_write(){
     export LINKFLAGS="${LDFLAGS}"
     cmake .. -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_INSTALL_LIBDIR=lib
     make run
+}
+
+zi_list(){
+    echo "skipping list"
+    exit 1
+}
+
+zi_read(){
+    echo "skipping read"
+    exit 1
 }
 
 . $ROOT/.conda_driver.sh

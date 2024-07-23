@@ -8,18 +8,21 @@ set -o pipefail
 
 argparse(){
     case "${1}" in
+        write)
+            >&2 echo "Generating data..."
+            zi_write;;
+        list)
+            shift;
+            zi_list "$@";;
         read)
             shift;
-            echo "Reading data..."
+            >&2 echo "Verifying data..."
             zi_read "$@";;
-        write)
-            echo "Generating data..."
-            zi_write;;
         destroy)
-            echo "Tearing down..."
+            >&2 echo "Tearing down..."
             zi_destroy;;
         *)
-            echo "Unknown command: ${1}"
+            >&2 echo "Unknown command: ${1}"
             exit 2;;
     esac
 }
