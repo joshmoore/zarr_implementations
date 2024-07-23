@@ -60,14 +60,19 @@ def generate_n5_format(list_only:bool, compressors=['gzip', None]):
                              compressor=compressor_impl)
 
 
+def verify_format(path: str, group: str):
+    print(path, group)
+
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-list", action="store_true")
     parser.add_argument("-verify", action="store_true")
+    parser.add_argument("args", nargs="*")
     ns = parser.parse_args()
     if ns.verify:
-        verify_format(ns.known_args)
+        verify_format(*ns.args)
     else:
         generate_zarr_format(ns.list)
         generate_n5_format(ns.list)
