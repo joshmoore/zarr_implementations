@@ -45,7 +45,7 @@ def generate_n5_format(list_only:bool, compressors=['gzip', 'raw']):
 
 
 def verify_format(directory: str, dataset: str):
-    f = z5py.File(f"{directory}/{dataset}"), mode="r")
+    f = z5py.File(f"{directory}/{dataset}", mode="r")
     return f[:]
 
 

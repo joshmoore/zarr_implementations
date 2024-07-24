@@ -28,6 +28,7 @@ def n5_metadata(compression: str):
     }
 
 def zr_metadata():
+    if True:
         chunk_grid = {"name": "regular", "configuration": {"chunk_shape": chunks}}  # read size
 
         sharding_codec = {
