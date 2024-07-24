@@ -24,7 +24,7 @@ create_or_activate(){
         [[ -z "${NODEBUG}" ]] && >&2 echo "Creating $ENVNAME"
         $COMMAND env create -n $ENVNAME -f $IMPL/environment.yml
     fi
-    export MAMBA_ROOT_PREFIX=$(mamba info --base -q)
+    export MAMBA_ROOT_PREFIX=$(conda info --base -q)
     export MAMBA_EXE=${MAMBA_ROOT_PREFIX}/bin/mamba
     export CONDA_EXE=${MAMBA_ROOT_PREFIX}/bin/conda
     . $MAMBA_ROOT_PREFIX/etc/profile.d/conda.sh
