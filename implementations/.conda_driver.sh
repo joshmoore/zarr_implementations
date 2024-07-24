@@ -18,9 +18,9 @@ fi
 create_or_activate(){
 
     if { $COMMAND env list | grep $ENVNAME; } >/dev/null 2>&1; then
-        >&2 echo "Using $ENVNAME"
+        [[ -z "${NODEBUG}" ]] && >&2 echo "Using $ENVNAME"
     else
-        >&2 echo "Creating $ENVNAME"
+        [[ -z "${NODEBUG}" ]] && >&2 echo "Creating $ENVNAME"
         $COMMAND env create -n $ENVNAME -f $IMPL/environment.yml
     fi
     export MAMBA_ROOT_PREFIX=$(mamba info --base -q)
@@ -29,14 +29,14 @@ create_or_activate(){
     . $MAMBA_ROOT_PREFIX/etc/profile.d/conda.sh
     . $MAMBA_ROOT_PREFIX/etc/profile.d/mamba.sh
 
-    >&2 echo "Activating $ENVNAME"
+    [[ -z "${NODEBUG}" ]] && >&2 echo "Activating $ENVNAME"
     $COMMAND activate $ENVNAME
 }
 
 zi_destroy(){
 
     if { $COMMAND env list | grep $ENVNAME; } >/dev/null 2>&1; then
-        >&2 echo "Destroying $ENVNAME"
+        [[ -z "${NODEBUG}" ]] && >&2 echo "Destroying $ENVNAME"
         $COMMAND env remove -y -n $ENVNAME
     else
         >&2 echo "No known env: $ENVNAME"

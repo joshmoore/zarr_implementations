@@ -65,9 +65,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-list", action="store_true")
     parser.add_argument("-verify", action="store_true")
+    parser.add_argument("args", nargs="*")
     ns = parser.parse_args()
     if ns.verify:
-        verify_format(ns.known_args)
+        verify_format(*ns.args)
     else:
         for nested in [False, True]:
             for sharded in [False, True]:

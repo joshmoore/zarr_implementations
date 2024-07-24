@@ -22,14 +22,20 @@ def generate_n5_format(list_only: bool, compressors=pyn5.CompressionType):
             f.create_dataset(name, data=im, chunks=CHUNKS, compression=compressor)
 
 
+def verify_format(directory: str, dataset: str):
+    f = pyn5.File(f"{directory}/{dataset}")# TODO, mode="r")
+    return f[:]
+
+
 if __name__ == '__main__':
     import sys
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-list", action="store_true")
     parser.add_argument("-verify", action="store_true")
+    parser.add_argument("args", nargs="*")
     ns = parser.parse_args()
     if ns.verify:
-        verify_n5_format()
+        verify_format(*ns.args)
     else:
         generate_n5_format(ns.list)

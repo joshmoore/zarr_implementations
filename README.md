@@ -31,3 +31,4 @@ Test for compatibility. See [doc/development_overview.md](doc/development_overvi
 ## Other features
 
 * `touch implementations/{impl}/.skip` to disable an implementation
+* Use `make NODEBUG=1 ...` to quiet output
