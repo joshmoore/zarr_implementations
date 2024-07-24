@@ -6,6 +6,7 @@
 
 set -e
 set -o pipefail
+set -x
 
 ## Setup based on mamba versus conda installation
 if command -v mamba &> /dev/null
