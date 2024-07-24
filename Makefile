@@ -80,13 +80,11 @@ $1-list:
 	    bash $1/driver.sh list; \
 	fi
 
-formats := $(shell cat formats)
-
 $1-read-fast:
 	@if test -e $1/.skip; \
 	    then >&2 echo "Skipping $1 -- $$(shell test -e $1/.skip && cat $1/.skip)"; \
 	else \
-	    bash verify.sh $1; \
+	    bash $1/driver.sh read $(DIR) $(DATASET); \
 	fi
 
 
