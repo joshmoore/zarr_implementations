@@ -44,4 +44,4 @@ jobs:
         shell: bash -el {0}
         run: |
           make write;
-          test/test_read_all.py
+          pytest test/test_read_all.py
