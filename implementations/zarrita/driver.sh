@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-#
-
 ENVNAME=ZI_zarrita
 
 # Standard bootstrapping

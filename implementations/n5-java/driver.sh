@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 ENVNAME=ZI_n5_java
 
 # Standard bootstrapping

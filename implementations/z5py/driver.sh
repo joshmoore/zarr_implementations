@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-#
-#
-
 ENVNAME=ZI_z5py
 
 # Standard bootstrapping

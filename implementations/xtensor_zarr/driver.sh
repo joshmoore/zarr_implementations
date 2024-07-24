@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 ENVNAME=ZI_xtensor_zarr
 
 # Standard bootstrapping

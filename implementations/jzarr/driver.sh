@@ -1,6 +1,4 @@
-# cd to this directory
-# https://stackoverflow.com/a/6393573/2700168
-
+#!/usr/bin/env bash
 ENVNAME=ZI_jzarr
 
 # Standard bootstrapping
