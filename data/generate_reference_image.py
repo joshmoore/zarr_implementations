@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from skimage.data import astronaut
 from skimage.io import imsave
 

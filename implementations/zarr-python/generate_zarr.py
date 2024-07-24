@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import zarr
 import numcodecs
 from skimage.data import astronaut

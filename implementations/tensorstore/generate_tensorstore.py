@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import tensorstore as ts
 import numcodecs
 from skimage.data import astronaut

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import zarrita
 from skimage.data import astronaut
 
