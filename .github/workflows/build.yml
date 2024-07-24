@@ -5,50 +5,43 @@ on: [push, pull_request]
 
 jobs:
 
-  get_implementations:
+  build:
+
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: List implementations
-        id: set-matrix
-        run: echo "matrix=$(cd implementations && ls -1 | jq -ncR '[inputs]')" >> $GITHUB_OUTPUT
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
 
-  write_released:
-    strategy:
-      fail-fast: false
-      matrix:
-        implementation: ${{ fromJson(needs.get_implementations.outputs.matrix) }}
-        platform: [ubuntu-latest]
-        python-version: [3.8]
-        zarr-python: [released]
-    needs: [get_implementations]
-    uses: ./.github/workflows/impl.yml
-    with:
-      implementation: ${{ matrix.implementation }}
-      platform: ${{ matrix.platform }}
-      python-version: ${{ matrix.python-version }}
-      zarr-python: ${{ matrix.zarr-python }}
-      action: write
+      - name: Cache conda
+        uses: actions/cache@v3
+        env:
+          # Increase this value to reset cache if etc/example-environment.yml has not changed
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
 
-  read_released:
-    strategy:
-      fail-fast: false
-      matrix:
-        implementation: ${{ fromJson(needs.get_implementations.outputs.matrix) }}
-        platform: [ubuntu-latest]
-        python-version: [3.8]
-        zarr-python: [pre]
-    # Run the read job regardless once writing is complete
-    # TMP needs: [write_pre, write_released]
-    needs: [write_released]
-    if: ${{ always() }}
-    uses: ./.github/workflows/impl.yml
-    with:
-      implementation: ${{ matrix.implementation }}
-      platform: ${{ matrix.platform }}
-      python-version: ${{ matrix.python-version }}
-      zarr-python: ${{ matrix.zarr-python }}
-      action: read
+      - name: Setup miniconda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          activate-environment: ZI
+          channels: conda-forge,defaults
+          channel-priority: true
+          environment-file: environment.yml
+          mamba-version: "*"
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run build
+        shell: bash -el {0}
+        run: |
+          make write;
+          test/test_read_all.py
